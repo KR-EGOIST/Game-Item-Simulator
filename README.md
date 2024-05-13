@@ -58,13 +58,13 @@
     - 즉, 우리가 만드는 캐릭터는 HP와 힘 능력만 있는 상태라고 생각하시면 됩니다!
 - MongoDB에는 이런식으로 캐릭터 데이터가 저장이 되어있을 것입니다.
 ```
-  {
-  _id: ObjectId("649b85a52009a26bc6b4f6e9")
-  character_id: 321,
-  name: "호호아줌마"
-  health: 500,
-  power: 100
-  }
+{
+	_id: ObjectId("649b85a52009a26bc6b4f6e9")
+	character_id: 321,
+	name: "호호아줌마"
+	health: 500,
+	power: 100
+}
 ```
 - 생성 성공 시 캐릭터의 ID를 반드시 response로 꼭 전달해주세요!
 2. 캐릭터 삭제 API
@@ -75,11 +75,11 @@
     - 캐릭터 이름, HP, 힘 스탯 및 아이템 목록을 전달해주세요!
     - **response** 예시
 ```
-   {
-  "name": "호호아줌마",
-  "health": 500,
-  "power": 100
-  }
+{
+	"name": "호호아줌마",
+	"health": 500,
+	"power": 100
+}
 ```
 
 4. 아이템 생성 API
@@ -88,9 +88,9 @@
         - request의 body 예시
 
 ```
-         {
-		"item_code": 3,
-		"item_name": "파멸의 반지",
-		"item_stat": { "health": 20, "power": 2 }
-	 }
+{
+	"item_code": 3,
+	"item_name": "파멸의 반지",
+	"item_stat": { "health": 20, "power": 2 }
+ }
 ```
