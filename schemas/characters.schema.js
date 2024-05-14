@@ -1,5 +1,10 @@
 import mongoose from 'mongoose';
 
+// ObjectId 타입은 따로 꺼내주어야 한다.
+const {
+  Types: { ObjectId },
+} = mongoose.Schema;
+
 const myCharacterSchema = new mongoose.Schema(
   {
     character_id: {
@@ -20,6 +25,7 @@ const myCharacterSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    equip: [],
   },
   {
     timestamps: true,

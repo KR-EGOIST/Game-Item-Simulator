@@ -1,6 +1,7 @@
 import express from 'express';
 import joi from 'joi';
 import myCharacter from '../schemas/characters.schema.js';
+import Item from '../schemas/items.schema.js';
 
 const router = express.Router();
 
@@ -37,6 +38,7 @@ router.post('/myCharacters', async (req, res, next) => {
     const validation = await createCharacterSchema.validateAsync(req.body);
 
     const { name, health, power } = validation;
+    const equip = [];
 
     // 유효성 검사
     // name이 존재하지 않을 때, 클라이언트에게 에러 메시지를 전달합니다.
@@ -72,7 +74,13 @@ router.post('/myCharacters', async (req, res, next) => {
       : 1;
 
     // 4. 캐릭터 등록
-    const MyCharacter = new myCharacter({ character_id, name, health, power });
+    const MyCharacter = new myCharacter({
+      character_id,
+      name,
+      health,
+      power,
+      equip,
+    });
     await MyCharacter.save();
 
     // 5. 캐릭터를 클라이언트에게 반환한다.
@@ -134,6 +142,144 @@ router.get('/myCharacters/:character_id', async (req, res, next) => {
 
   // 찾은 '캐릭터'을 클라이언트에게 전달합니다.
   return res.status(200).json({ MyCharacter });
+});
+
+//** 캐릭터가 장착한 아이템 목록 조회 API **/
+router.get('/myCharacters/equip/:character_id', async (req, res, next) => {
+  try {
+    // 조회할 '캐릭터 ID' 값을 가져옵니다.
+    const { character_id } = req.params;
+
+    // 조회하려는 '캐릭터 ID'를 가져옵니다. 만약, 해당 ID값을 가진 '캐릭터'가 없다면 에러를 발생시킵니다.
+    const MyCharacter = await myCharacter
+      .findOne({ character_id: `${character_id}` })
+      .select('equip')
+      .exec();
+
+    // 유효성 검사
+    if (!MyCharacter) {
+      return res
+        .status(404)
+        .json({ errorMessage: '존재하지 않는 캐릭터입니다.' });
+    }
+
+    // 찾은 '캐릭터'을 클라이언트에게 전달합니다.
+    return res.status(200).json({ MyCharacter });
+  } catch (err) {
+    next(err);
+  }
+});
+
+//** 아이템 장착 API **/
+router.patch('/myCharacters/equip/:character_id', async (req, res, next) => {
+  try {
+    // 장착할 '캐릭터 ID' 값을 가져옵니다.
+    const { character_id } = req.params;
+
+    // 장착할 아이템 코드를 클라이언트로부터 전달받습니다.
+    const { item_code } = req.body;
+
+    // 장착하려는 '캐릭터 ID'를 가져옵니다. 만약, 해당 ID값을 가진 '캐릭터'가 없다면 에러를 발생시킵니다.
+    const MyCharacter = await myCharacter
+      .findOne({ character_id: `${character_id}` })
+      .exec();
+    // 장착하려는 '아이템 코드'를 가져옵니다. 만약, 해당 코드값을 가진 '아이템'가 없다면 에러를 발생시킵니다.
+    const item = await Item.findOne({ item_code: `${item_code}` }).exec();
+
+    // 유효성 검사
+    if (!MyCharacter) {
+      return res
+        .status(404)
+        .json({ errorMessage: '존재하지 않는 캐릭터입니다.' });
+    }
+    if (!item) {
+      return res
+        .status(404)
+        .json({ errorMessage: '존재하지 않는 아이템입니다.' });
+    }
+
+    // findIndex 메소드로 캐릭터.equip 객체의 item_code 값이 item.item_code 값과 같으면 이미 장착된 아이템
+    if (
+      MyCharacter.equip.findIndex((v) => v.item_code == item.item_code) != -1
+    ) {
+      return res
+        .status(400)
+        .json({ errorMessage: '이미 장착한 아이템입니다.' });
+    }
+
+    MyCharacter.equip.push(item);
+    if (item.item_stat.health) {
+      MyCharacter.health = MyCharacter.health + item.item_stat.health;
+    }
+    if (item.item_stat.power) {
+      MyCharacter.power = MyCharacter.power + item.item_stat.power;
+    }
+
+    await MyCharacter.save();
+
+    return res.status(200).json({});
+  } catch (err) {
+    next(err);
+  }
+});
+
+/** 아이템 탈착 API **/
+router.delete('/myCharacters/equip/:character_id', async (req, res, next) => {
+  try {
+    // 탈착할 '캐릭터 ID' 값을 가져옵니다.
+    const { character_id } = req.params;
+
+    // 탈착할 아이템 코드를 클라이언트로부터 전달받습니다.
+    const { item_code } = req.body;
+
+    // 탈착하려는 '캐릭터 ID'를 가져옵니다. 만약, 해당 ID값을 가진 '캐릭터'가 없다면 에러를 발생시킵니다.
+    const MyCharacter = await myCharacter
+      .findOne({ character_id: `${character_id}` })
+      .exec();
+
+    // 탈착하려는 '아이템 코드'를 가져옵니다. 만약, 해당 코드값을 가진 '아이템'가 없다면 에러를 발생시킵니다.
+    const item = await Item.findOne({ item_code: `${item_code}` }).exec();
+
+    // 유효성 검사
+    if (!MyCharacter) {
+      return res
+        .status(404)
+        .json({ errorMessage: '존재하지 않는 캐릭터입니다.' });
+    }
+    if (!item) {
+      return res
+        .status(404)
+        .json({ errorMessage: '존재하지 않는 아이템입니다.' });
+    }
+    if (MyCharacter.equip.length === 0) {
+      return res
+        .status(400)
+        .json({ errorMessage: '장착한 아이템이 없습니다.' });
+    }
+    if (item.item_stat.health) {
+      MyCharacter.health = MyCharacter.health - item.item_stat.health;
+    }
+    if (item.item_stat.power) {
+      MyCharacter.power = MyCharacter.power - item.item_stat.power;
+    }
+
+    const index = MyCharacter.equip.findIndex(
+      (v) => v.item_code == item.item_code
+    );
+    if (index != -1) {
+      MyCharacter.equip.splice(index, 1);
+    } else {
+      return res
+        .status(400)
+        .json({ errorMessage: '장착한 아이템이 아닙니다.' });
+    }
+
+    await MyCharacter.save();
+
+    return res.status(200).json({});
+  } catch (err) {
+    next(err);
+  }
 });
 
 export default router;
