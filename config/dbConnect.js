@@ -27,7 +27,7 @@ https: mongoose.connection.on('error', (err) => {
 
 mongoose.connection.on('disconnected', () => {
   console.error('몽고디비 연결이 끊겼습니다. 연결을 재시도합니다.');
-  connect(); // 연결 재시도
+  dbConnect(); // 연결 재시도
 });
 
 export default dbConnect;
