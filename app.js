@@ -2,6 +2,7 @@
 
 import express from 'express';
 import dbConnect from './config/dbConnect.js';
+import myCharactersRouter from './routes/characters.router.js';
 
 const app = express();
 const PORT = 3000;
@@ -18,7 +19,8 @@ router.get('/', (req, res) => {
   return res.json({ message: 'Hi!' });
 });
 
-app.use('/api', router);
+// /api 주소로 접근하였을 때, router와 myCharactersRouter로 클라이언트의 요청이 전달됩니다.
+app.use('/api', [router, myCharactersRouter]);
 
 app.listen(PORT, () => {
   console.log(PORT, '포트로 서버가 열렸어요!');
