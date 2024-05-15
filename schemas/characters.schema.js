@@ -25,7 +25,10 @@ const myCharacterSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    equip: [],
+    equip: {
+      type: Array,
+      required: true,
+    },
   },
   {
     timestamps: true,
