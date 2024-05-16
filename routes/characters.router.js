@@ -26,8 +26,6 @@ const router = express.Router();
 
 const createCharacterSchema = joi.object({
   name: joi.string().min(1).max(10).required(),
-  health: joi.number().min(1).required(),
-  power: joi.number().min(1).required(),
 });
 
 //** 캐릭터 생성 API **/
@@ -37,27 +35,14 @@ router.post('/mycharacters', async (req, res, next) => {
     // 유효성 검사는 validateAsync 메서드를 사용한다.
     const validation = await createCharacterSchema.validateAsync(req.body);
 
-    const { name, health, power } = validation;
-    const equip = [];
+    const { name } = validation;
 
     // 유효성 검사
     // name이 존재하지 않을 때, 클라이언트에게 에러 메시지를 전달합니다.
     if (!name) {
       return res
-        .status(400)
+        .status(404)
         .json({ errorMessage: '닉네임 데이터가 존재하지 않습니다.' });
-    }
-    // health가 존재하지 않을 때, 클라이언트에게 에러 메시지를 전달합니다.
-    if (!health) {
-      return res
-        .status(400)
-        .json({ errorMessage: '체력 데이터가 존재하지 않습니다.' });
-    }
-    // power가 존재하지 않을 때, 클라이언트에게 에러 메시지를 전달합니다.
-    if (!power) {
-      return res
-        .status(400)
-        .json({ errorMessage: '공격력 데이터가 존재하지 않습니다.' });
     }
 
     // 2. 해당하는 마지막 character_id 데이터를 조회한다.
@@ -77,9 +62,9 @@ router.post('/mycharacters', async (req, res, next) => {
     const MyCharacter = new myCharacter({
       character_id,
       name,
-      health,
-      power,
-      equip,
+      health: 500,
+      power: 100,
+      equip: [],
     });
     await MyCharacter.save();
 
@@ -145,7 +130,7 @@ router.get('/mycharacters/:character_id', async (req, res, next) => {
 });
 
 //** 캐릭터가 장착한 아이템 목록 조회 API **/
-router.get('/mycharacters/equip/:character_id', async (req, res, next) => {
+router.get('/mycharacters/:character_id/equip', async (req, res, next) => {
   try {
     // 조회할 '캐릭터 ID' 값을 가져옵니다.
     const { character_id } = req.params;
@@ -153,7 +138,7 @@ router.get('/mycharacters/equip/:character_id', async (req, res, next) => {
     // 조회하려는 '캐릭터 ID'를 가져옵니다. 만약, 해당 ID값을 가진 '캐릭터'가 없다면 에러를 발생시킵니다.
     const MyCharacter = await myCharacter
       .findOne({ character_id: `${character_id}` })
-      .select('equip')
+      .select('equip -_id')
       .exec();
 
     // 유효성 검사
@@ -171,7 +156,7 @@ router.get('/mycharacters/equip/:character_id', async (req, res, next) => {
 });
 
 //** 아이템 장착 API **/
-router.patch('/mycharacters/equip/:character_id', async (req, res, next) => {
+router.patch('/mycharacters/:character_id/equip', async (req, res, next) => {
   try {
     // 장착할 '캐릭터 ID' 값을 가져옵니다.
     const { character_id } = req.params;
@@ -203,7 +188,7 @@ router.patch('/mycharacters/equip/:character_id', async (req, res, next) => {
       MyCharacter.equip.findIndex((v) => v.item_code == item.item_code) != -1
     ) {
       return res
-        .status(400)
+        .status(404)
         .json({ errorMessage: '이미 장착한 아이템입니다.' });
     }
 
@@ -224,7 +209,7 @@ router.patch('/mycharacters/equip/:character_id', async (req, res, next) => {
 });
 
 /** 아이템 탈착 API **/
-router.delete('/mycharacters/equip/:character_id', async (req, res, next) => {
+router.delete('/mycharacters/:character_id/equip', async (req, res, next) => {
   try {
     // 탈착할 '캐릭터 ID' 값을 가져옵니다.
     const { character_id } = req.params;
@@ -253,7 +238,7 @@ router.delete('/mycharacters/equip/:character_id', async (req, res, next) => {
     }
     if (MyCharacter.equip.length === 0) {
       return res
-        .status(400)
+        .status(404)
         .json({ errorMessage: '장착한 아이템이 없습니다.' });
     }
     if (item.item_stat.health) {
@@ -270,7 +255,7 @@ router.delete('/mycharacters/equip/:character_id', async (req, res, next) => {
       MyCharacter.equip.splice(index, 1);
     } else {
       return res
-        .status(400)
+        .status(404)
         .json({ errorMessage: '장착한 아이템이 아닙니다.' });
     }
 

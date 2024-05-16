@@ -20,10 +20,12 @@ const myCharacterSchema = new mongoose.Schema(
     health: {
       type: Number,
       required: true,
+      default: 500,
     },
     power: {
       type: Number,
       required: true,
+      default: 100,
     },
     equip: {
       type: Array,
