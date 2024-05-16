@@ -21,7 +21,7 @@ const dbConnect = async () => {
 };
 
 // 몽구스 커넥션에 이벤트 리스너를 달게 해준다. 에러 발생 시 에러 내용을 기록하고, 연결 종료 시 재연결을 시도한다.
-https: mongoose.connection.on('error', (err) => {
+mongoose.connection.on('error', (err) => {
   console.error('MongoDB 연결 에러', err);
 });
 
