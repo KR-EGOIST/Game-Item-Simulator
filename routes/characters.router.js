@@ -31,7 +31,7 @@ const createCharacterSchema = joi.object({
 });
 
 //** 캐릭터 생성 API **/
-router.post('/myCharacters', async (req, res, next) => {
+router.post('/mycharacters', async (req, res, next) => {
   try {
     // 1. 클라이언트로부터 받아온 name, health, power 데이터를 가져온다.
     // 유효성 검사는 validateAsync 메서드를 사용한다.
@@ -92,7 +92,7 @@ router.post('/myCharacters', async (req, res, next) => {
 });
 
 //** 캐릭터 삭제 API **/
-router.delete('/myCharacters/:character_id', async (req, res, next) => {
+router.delete('/mycharacters/:character_id', async (req, res, next) => {
   // 삭제할 캐릭터 ID 값을 가져옵니다.
   const { character_id } = req.params;
 
@@ -115,7 +115,7 @@ router.delete('/myCharacters/:character_id', async (req, res, next) => {
 });
 
 //** 등록한 캐릭터 전부 조회 API **/
-router.get('/myCharacters', async (req, res, next) => {
+router.get('/mycharacters', async (req, res, next) => {
   // myCharacter모델을 이용해, MongoDB에서 'character_id' 값이 가장 높은 '캐릭터'를 찾습니다.
   const myCharacters = await myCharacter.find().sort('-character_id').exec();
 
@@ -124,7 +124,7 @@ router.get('/myCharacters', async (req, res, next) => {
 });
 
 //** 캐릭터 상세 조회 API **/
-router.get('/myCharacters/:character_id', async (req, res, next) => {
+router.get('/mycharacters/:character_id', async (req, res, next) => {
   // 조회할 '캐릭터 ID' 값을 가져옵니다.
   const { character_id } = req.params;
 
@@ -145,7 +145,7 @@ router.get('/myCharacters/:character_id', async (req, res, next) => {
 });
 
 //** 캐릭터가 장착한 아이템 목록 조회 API **/
-router.get('/myCharacters/equip/:character_id', async (req, res, next) => {
+router.get('/mycharacters/equip/:character_id', async (req, res, next) => {
   try {
     // 조회할 '캐릭터 ID' 값을 가져옵니다.
     const { character_id } = req.params;
@@ -171,7 +171,7 @@ router.get('/myCharacters/equip/:character_id', async (req, res, next) => {
 });
 
 //** 아이템 장착 API **/
-router.patch('/myCharacters/equip/:character_id', async (req, res, next) => {
+router.patch('/mycharacters/equip/:character_id', async (req, res, next) => {
   try {
     // 장착할 '캐릭터 ID' 값을 가져옵니다.
     const { character_id } = req.params;
@@ -224,7 +224,7 @@ router.patch('/myCharacters/equip/:character_id', async (req, res, next) => {
 });
 
 /** 아이템 탈착 API **/
-router.delete('/myCharacters/equip/:character_id', async (req, res, next) => {
+router.delete('/mycharacters/equip/:character_id', async (req, res, next) => {
   try {
     // 탈착할 '캐릭터 ID' 값을 가져옵니다.
     const { character_id } = req.params;
