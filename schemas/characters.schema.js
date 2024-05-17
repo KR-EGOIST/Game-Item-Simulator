@@ -27,10 +27,12 @@ const myCharacterSchema = new mongoose.Schema(
       required: true,
       default: 100,
     },
-    equip: {
-      type: Array,
-      required: true,
-    },
+    equip: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Item',
+      },
+    ],
   },
   {
     timestamps: true,
